@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 300px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .weather-info {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .weather-info p {
+            font-size: 18px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather App</h1>
+    <form id="location-form">
+        <input type="text" id="location-input" placeholder="Enter location" required>
+        <button type="submit">Get Weather</button>
+    </form>
+    <div class="weather-info" id="weather-info">
+        <!-- Weather details will be displayed here -->
+    </div>
+
+    <script>
+        document.getElementById('location-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const location = document.getElementById('location-input').value;
+            const apiKey = '73ca9629cc944869b34170746252101';
+            const apiUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Location not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const weatherInfo = document.getElementById('weather-info');
+                    weatherInfo.innerHTML = `
+                        <p><strong>Location:</strong> ${data.location.name}, ${data.location.country}</p>
+                        <p><strong>Temperature:</strong> ${data.current.temp_c}°C</p>
+                        <p><strong>Condition:</strong> ${data.current.condition.text}</p>
+                        <p><strong>Humidity:</strong> ${data.current.humidity}%</p>
+                    `;
+                })
+                .catch(error => {
+                    const weatherInfo = document.getElementById('weather-info');
+                    weatherInfo.innerHTML = `<p style="color: red;">${error.message}</p>`;
+                });
+        });
+    </script>
+</body>
+</html>
