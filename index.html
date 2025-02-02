@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
                         url('https://source.unsplash.com/1920x1080/?nature,weather') no-repeat center center/cover;
             color: #fff;
             display: flex;
@@ -59,10 +59,10 @@
 
         .weather-info {
             margin-top: 20px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.6);  /* Darker background for visibility */
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .weather-info p {
@@ -116,11 +116,26 @@
                 })
                 .then(data => {
                     const weatherInfo = document.getElementById('weather-info');
+                    const condition = data.current.condition.text.toLowerCase();
+                    
+                    // Change background based on weather condition
+                    if (condition.includes('rain')) {
+                        document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?rain')";
+                    } else if (condition.includes('sunny') || condition.includes('clear')) {
+                        document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?sunny')";
+                    } else {
+                        document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?clouds')";
+                    }
+
                     weatherInfo.innerHTML = `
                         <p><strong>Location:</strong> ${data.location.name}, ${data.location.country}</p>
                         <p><strong>Temperature:</strong> ${data.current.temp_c}°C</p>
                         <p><strong>Condition:</strong> ${data.current.condition.text}</p>
                         <p><strong>Humidity:</strong> ${data.current.humidity}%</p>
+                        <p><strong>Wind Speed:</strong> ${data.current.wind_kph} km/h</p>
+                        <p><strong>Air Quality Index (AQI):</strong> ${data.current.air_quality.pm2_5}</p>
+                        <p><strong>Sunrise:</strong> ${data.location.localtime.split(' ')[0]} ${data.location.localtime.split(' ')[1].slice(0, 5)}</p>
+                        <p><strong>Sunset:</strong> ${data.location.localtime.split(' ')[0]} ${data.location.localtime.split(' ')[1].slice(0, 5)}</p>
                     `;
                 })
                 .catch(error => {
