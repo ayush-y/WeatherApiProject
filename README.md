@@ -15,4 +15,4 @@ Welcome to the WeatherApiProject! This project is designed to fetch and display 
 
 - **Frontend**: HTML, CSS, JavaScript
 
-- **API**: Public Weather API (OpenWeatherMap)
+- **API**: Public Weather API (WeatherAPI.com)
