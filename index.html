@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,7 +87,6 @@
         }
     </style>
 </head>
-
 <body>
     <h1>Weather App</h1>
     <form id="location-form">
@@ -104,7 +102,7 @@
             event.preventDefault();
 
             const location = document.getElementById('location-input').value;
-            const apiKey = '73ca9629cc944869b34170746252101';
+            const apiKey = 'YOUR_API_KEY_HERE';
             const apiUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
 
             fetch(apiUrl)
@@ -134,8 +132,6 @@
                         <p><strong>Humidity:</strong> ${data.current.humidity}%</p>
                         <p><strong>Wind Speed:</strong> ${data.current.wind_kph} km/h</p>
                         <p><strong>Air Quality Index (AQI):</strong> ${data.current.air_quality.pm2_5}</p>
-                        <p><strong>Sunrise:</strong> ${data.location.localtime.split(' ')[0]} ${data.location.localtime.split(' ')[1].slice(0, 5)}</p>
-                        <p><strong>Sunset:</strong> ${data.location.localtime.split(' ')[0]} ${data.location.localtime.split(' ')[1].slice(0, 5)}</p>
                     `;
                 })
                 .catch(error => {
@@ -145,5 +141,4 @@
         });
     </script>
 </body>
-
 </html>
