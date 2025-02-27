@@ -69,6 +69,23 @@
             margin: 10px 0;
         }
 
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            z-index: 9999;
+            user-select: none;
+            pointer-events: none;
+            animation: fall 10s linear infinite;
+            opacity: 0.8;
+            font-size: 1em;
+            color: white;
+        }
+
+        @keyframes fall {
+            0% { top: -10px; }
+            100% { top: 100vh; }
+        }
+
         /* Media Queries */
         @media (max-width: 768px) {
             h1 {
@@ -121,6 +138,9 @@
                         document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?rain')";
                     } else if (condition.includes('sunny') || condition.includes('clear')) {
                         document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?sunny')";
+                    } else if (condition.includes('snow')) {
+                        document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?snow')";
+                        addSnowflakes();
                     } else {
                         document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?clouds')";
                     }
@@ -139,6 +159,20 @@
                     weatherInfo.innerHTML = `<p style="color: red;">${error.message}</p>`;
                 });
         });
+
+        function addSnowflakes() {
+            const snowflakeCount = 50; // Number of snowflakes
+
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.style.left = `${Math.random() * 100}vw`;
+                snowflake.style.animationDuration = `${Math.random() * 3 + 7}s`; // Vary the fall duration
+
+                snowflake.innerHTML = '&#10052;'; // Unicode for snowflake
+                document.body.appendChild(snowflake);
+            }
+        }
     </script>
 </body>
 </html>
