@@ -9,8 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
-                        url('https://source.unsplash.com/1920x1080/?nature,weather') no-repeat center center/cover;
+            background-color: #333;
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -18,6 +17,7 @@
             justify-content: center;
             height: 100vh;
             text-align: center;
+            transition: background-color 0.5s ease;
         }
 
         h1 {
@@ -69,23 +69,6 @@
             margin: 10px 0;
         }
 
-        .snowflake {
-            position: fixed;
-            top: -10px;
-            z-index: 9999;
-            user-select: none;
-            pointer-events: none;
-            animation: fall 10s linear infinite;
-            opacity: 0.8;
-            font-size: 1em;
-            color: white;
-        }
-
-        @keyframes fall {
-            0% { top: -10px; }
-            100% { top: 100vh; }
-        }
-
         /* Media Queries */
         @media (max-width: 768px) {
             h1 {
@@ -119,7 +102,7 @@
             event.preventDefault();
 
             const location = document.getElementById('location-input').value;
-            const apiKey = 'YOUR_API_KEY_HERE';
+            const apiKey = '73ca9629cc944869b34170746252101';
             const apiUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
 
             fetch(apiUrl)
@@ -133,16 +116,15 @@
                     const weatherInfo = document.getElementById('weather-info');
                     const condition = data.current.condition.text.toLowerCase();
                     
-                    // Change background based on weather condition
+                    // Change background color based on weather condition
                     if (condition.includes('rain')) {
-                        document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?rain')";
+                        document.body.style.backgroundColor = "#1e3c72";  // Dark blue for rain
                     } else if (condition.includes('sunny') || condition.includes('clear')) {
-                        document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?sunny')";
+                        document.body.style.backgroundColor = "#FFD700";  // Gold for sunny/clear
                     } else if (condition.includes('snow')) {
-                        document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?snow')";
-                        addSnowflakes();
+                        document.body.style.backgroundColor = "#87CEEB";  // Light blue for snow
                     } else {
-                        document.body.style.backgroundImage = "url('https://source.unsplash.com/1920x1080/?clouds')";
+                        document.body.style.backgroundColor = "#708090";  // Slate gray for other conditions
                     }
 
                     weatherInfo.innerHTML = `
@@ -159,20 +141,6 @@
                     weatherInfo.innerHTML = `<p style="color: red;">${error.message}</p>`;
                 });
         });
-
-        function addSnowflakes() {
-            const snowflakeCount = 50; // Number of snowflakes
-
-            for (let i = 0; i < snowflakeCount; i++) {
-                const snowflake = document.createElement('div');
-                snowflake.className = 'snowflake';
-                snowflake.style.left = `${Math.random() * 100}vw`;
-                snowflake.style.animationDuration = `${Math.random() * 3 + 7}s`; // Vary the fall duration
-
-                snowflake.innerHTML = '&#10052;'; // Unicode for snowflake
-                document.body.appendChild(snowflake);
-            }
-        }
     </script>
 </body>
 </html>
