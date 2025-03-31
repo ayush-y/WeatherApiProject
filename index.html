@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
+    <title>Enhanced Weather App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -56,17 +56,32 @@
             background-color: #0056b3;
         }
 
-        .weather-info {
+        .weather-info, .favorites-container {
             margin-top: 20px;
-            background: rgba(0, 0, 0, 0.6);  /* Darker background for visibility */
+            background: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            text-align: left;
         }
 
-        .weather-info p {
+        .weather-info p, .favorites-container button {
             font-size: 18px;
             margin: 10px 0;
+        }
+
+        .favorites-container button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .favorites-container button:hover {
+            background-color: #218838;
         }
 
         /* Media Queries */
@@ -88,7 +103,7 @@
     </style>
 </head>
 <body>
-    <h1>Weather App</h1>
+    <h1>Enhanced Weather App</h1>
     <form id="location-form">
         <input type="text" id="location-input" placeholder="Enter location" required>
         <button type="submit">Get Weather</button>
@@ -96,14 +111,20 @@
     <div class="weather-info" id="weather-info">
         <!-- Weather details will be displayed here -->
     </div>
+    <div class="favorites-container" id="favorites-container">
+        <!-- Favorite locations will be displayed here -->
+    </div>
+    <button id="save-favorite">Save to Favorites</button>
 
     <script>
+        const favorites = [];
+
         document.getElementById('location-form').addEventListener('submit', function (event) {
             event.preventDefault();
 
             const location = document.getElementById('location-input').value;
             const apiKey = '73ca9629cc944869b34170746252101';
-            const apiUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+            const apiUrl = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=3`;
 
             fetch(apiUrl)
                 .then(response => {
@@ -115,32 +136,76 @@
                 .then(data => {
                     const weatherInfo = document.getElementById('weather-info');
                     const condition = data.current.condition.text.toLowerCase();
-                    
+
                     // Change background color based on weather condition
                     if (condition.includes('rain')) {
-                        document.body.style.backgroundColor = "#1e3c72";  // Dark blue for rain
+                        document.body.style.backgroundColor = "#1e3c72";
                     } else if (condition.includes('sunny') || condition.includes('clear')) {
-                        document.body.style.backgroundColor = "#FFD700";  // Gold for sunny/clear
+                        document.body.style.backgroundColor = "#FFD700";
                     } else if (condition.includes('snow')) {
-                        document.body.style.backgroundColor = "#87CEEB";  // Light blue for snow
+                        document.body.style.backgroundColor = "#87CEEB";
                     } else {
-                        document.body.style.backgroundColor = "#708090";  // Slate gray for other conditions
+                        document.body.style.backgroundColor = "#708090";
                     }
 
+                    // Display current weather and forecast
                     weatherInfo.innerHTML = `
                         <p><strong>Location:</strong> ${data.location.name}, ${data.location.country}</p>
                         <p><strong>Temperature:</strong> ${data.current.temp_c}°C</p>
                         <p><strong>Condition:</strong> ${data.current.condition.text}</p>
                         <p><strong>Humidity:</strong> ${data.current.humidity}%</p>
                         <p><strong>Wind Speed:</strong> ${data.current.wind_kph} km/h</p>
-                        <p><strong>Air Quality Index (AQI):</strong> ${data.current.air_quality.pm2_5}</p>
+                        <p><strong>UV Index:</strong> ${data.current.uv}</p>
                     `;
+                    if (data.current.uv > 8) {
+                        weatherInfo.innerHTML += `<p><strong>Precaution:</strong> High UV exposure! Wear sunscreen and limit outdoor activities.</p>`;
+                    } else if (data.current.uv > 5) {
+                        weatherInfo.innerHTML += `<p><strong>Precaution:</strong> Moderate UV exposure! Use sunscreen and stay hydrated.</p>`;
+                    } else {
+                        weatherInfo.innerHTML += `<p><strong>Precaution:</strong> Low UV exposure. Enjoy the outdoors safely!</p>`;
+                    }
+
+                    // Add forecast data
+                    data.forecast.forecastday.forEach(day => {
+                        weatherInfo.innerHTML += `
+                            <hr />
+                            <p><strong>Date:</strong> ${day.date}</p>
+                            <p><strong>Max Temp:</strong> ${day.day.maxtemp_c}°C</p>
+                            <p><strong>Min Temp:</strong> ${day.day.mintemp_c}°C</p>
+                            <p><strong>Condition:</strong> ${day.day.condition.text}</p>
+                        `;
+                    });
+
+                    // Add animated weather icon
+                    weatherInfo.innerHTML += `<img src="${data.current.condition.icon}" alt="Weather Icon" style="animation: fadeIn 1s ease-in;">`;
                 })
                 .catch(error => {
                     const weatherInfo = document.getElementById('weather-info');
                     weatherInfo.innerHTML = `<p style="color: red;">${error.message}</p>`;
                 });
         });
+
+        document.getElementById('save-favorite').addEventListener('click', function () {
+            const location = document.getElementById('location-input').value;
+            if (location && !favorites.includes(location)) {
+                favorites.push(location);
+                displayFavorites();
+            }
+        });
+
+        function displayFavorites() {
+            const favoritesContainer = document.getElementById('favorites-container');
+            favoritesContainer.innerHTML = `<h3>Favorite Locations</h3>`;
+            favorites.forEach(location => {
+                const button = document.createElement('button');
+                button.textContent = location;
+                button.addEventListener('click', () => {
+                    document.getElementById('location-input').value = location;
+                    document.getElementById('location-form').dispatchEvent(new Event('submit'));
+                });
+                favoritesContainer.appendChild(button);
+            });
+        }
     </script>
 </body>
 </html>
