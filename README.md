@@ -15,5 +15,6 @@ Welcome to the WeatherApiProject! This project is designed to fetch and display 
 
 - **Frontend**: HTML, CSS, JavaScript
 
-- **API**: Public Weather API
-- (WeatherAPI.com)
+- **API**:
+- Public Weather (WeatherAPI.com)
+- used key
