@@ -17,4 +17,4 @@ Welcome to the WeatherApiProject! This project is designed to fetch and display 
 
 - **API**:
 - Public Weather (WeatherAPI.com)
-- used key
+- used key (To get real time update)
