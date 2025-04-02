@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Weather App</title>
+    <title>Weather App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,200 +12,78 @@
             background-color: #333;
             color: #fff;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             text-align: center;
-            transition: background-color 0.5s ease;
         }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        form {
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-right: 10px;
-            width: 280px;
-            max-width: 100%;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .weather-info, .favorites-container {
-            margin-top: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            text-align: left;
-        }
-
-        .weather-info p, .favorites-container button {
-            font-size: 18px;
-            margin: 10px 0;
-        }
-
-        .favorites-container button {
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 10px;
-            cursor: pointer;
-            margin: 5px;
-        }
-
-        .favorites-container button:hover {
-            background-color: #218838;
-        }
-
-        /* Media Queries */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            input[type="text"] {
-                margin-bottom: 10px;
-                margin-right: 0;
-                width: 100%;
-            }
-
-            button {
-                width: 100%;
-            }
-        }
+        h1, p, button, input { margin: 10px; }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background: #007bff; color: #fff; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .info { background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <h1>Enhanced Weather App</h1>
+    <h1>Weather App</h1>
     <form id="location-form">
         <input type="text" id="location-input" placeholder="Enter location" required>
         <button type="submit">Get Weather</button>
     </form>
-    <div class="weather-info" id="weather-info">
-        <!-- Weather details will be displayed here -->
-    </div>
-    <div class="favorites-container" id="favorites-container">
-        <!-- Favorite locations will be displayed here -->
-    </div>
+    <div id="weather-info" class="info"></div>
     <button id="save-favorite">Save to Favorites</button>
+    <div id="favorites"></div>
 
     <script>
-        const favorites = [];
-
-        document.getElementById('location-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            const location = document.getElementById('location-input').value;
-            const apiKey = '73ca9629cc944869b34170746252101';
-            const apiUrl = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=3`;
-
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Location not found');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const weatherInfo = document.getElementById('weather-info');
-                    const condition = data.current.condition.text.toLowerCase();
-
-                    // Change background color based on weather condition
-                    if (condition.includes('rain')) {
-                        document.body.style.backgroundColor = "#1e3c72";
-                    } else if (condition.includes('sunny') || condition.includes('clear')) {
-                        document.body.style.backgroundColor = "#FFD700";
-                    } else if (condition.includes('snow')) {
-                        document.body.style.backgroundColor = "#87CEEB";
-                    } else {
-                        document.body.style.backgroundColor = "#708090";
-                    }
-
-                    // Display current weather and forecast
-                    weatherInfo.innerHTML = `
-                        <p><strong>Location:</strong> ${data.location.name}, ${data.location.country}</p>
-                        <p><strong>Temperature:</strong> ${data.current.temp_c}°C</p>
-                        <p><strong>Condition:</strong> ${data.current.condition.text}</p>
-                        <p><strong>Humidity:</strong> ${data.current.humidity}%</p>
-                        <p><strong>Wind Speed:</strong> ${data.current.wind_kph} km/h</p>
-                        <p><strong>UV Index:</strong> ${data.current.uv}</p>
-                    `;
-                    if (data.current.uv > 8) {
-                        weatherInfo.innerHTML += `<p><strong>Precaution:</strong> High UV exposure! Wear sunscreen and limit outdoor activities.</p>`;
-                    } else if (data.current.uv > 5) {
-                        weatherInfo.innerHTML += `<p><strong>Precaution:</strong> Moderate UV exposure! Use sunscreen and stay hydrated.</p>`;
-                    } else {
-                        weatherInfo.innerHTML += `<p><strong>Precaution:</strong> Low UV exposure. Enjoy the outdoors safely!</p>`;
-                    }
-
-                    // Add forecast data
-                    data.forecast.forecastday.forEach(day => {
-                        weatherInfo.innerHTML += `
-                            <hr />
-                            <p><strong>Date:</strong> ${day.date}</p>
-                            <p><strong>Max Temp:</strong> ${day.day.maxtemp_c}°C</p>
-                            <p><strong>Min Temp:</strong> ${day.day.mintemp_c}°C</p>
-                            <p><strong>Condition:</strong> ${day.day.condition.text}</p>
-                        `;
-                    });
-
-                    // Add animated weather icon
-                    weatherInfo.innerHTML += `<img src="${data.current.condition.icon}" alt="Weather Icon" style="animation: fadeIn 1s ease-in;">`;
-                })
-                .catch(error => {
-                    const weatherInfo = document.getElementById('weather-info');
-                    weatherInfo.innerHTML = `<p style="color: red;">${error.message}</p>`;
-                });
+        const favorites = [], apiKey = '73ca9629cc944869b34170746252101';
+        
+        document.getElementById('location-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const loc = document.getElementById('location-input').value;
+            fetch(`http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${loc}&days=3`)
+                .then(res => res.ok ? res.json() : Promise.reject('Location not found'))
+                .then(data => showWeather(data))
+                .catch(err => showError(err));
         });
 
-        document.getElementById('save-favorite').addEventListener('click', function () {
-            const location = document.getElementById('location-input').value;
-            if (location && !favorites.includes(location)) {
-                favorites.push(location);
-                displayFavorites();
-            }
+        document.getElementById('save-favorite').addEventListener('click', () => {
+            const loc = document.getElementById('location-input').value;
+            if (loc && !favorites.includes(loc)) favorites.push(loc);
+            updateFavorites();
         });
 
-        function displayFavorites() {
-            const favoritesContainer = document.getElementById('favorites-container');
-            favoritesContainer.innerHTML = `<h3>Favorite Locations</h3>`;
-            favorites.forEach(location => {
-                const button = document.createElement('button');
-                button.textContent = location;
-                button.addEventListener('click', () => {
-                    document.getElementById('location-input').value = location;
-                    document.getElementById('location-form').dispatchEvent(new Event('submit'));
-                });
-                favoritesContainer.appendChild(button);
-            });
-        }
+        const showWeather = data => {
+            const { location, current, forecast } = data;
+            document.body.style.backgroundColor = current.condition.text.includes('rain') ? '#1e3c72' :
+                                                  current.condition.text.includes('sunny') ? '#FFD700' :
+                                                  current.condition.text.includes('snow') ? '#87CEEB' : '#708090';
+            const weatherInfo = `
+                <p><b>Location:</b> ${location.name}, ${location.country}</p>
+                <p><b>Temperature:</b> ${current.temp_c}°C | <b>Condition:</b> ${current.condition.text}</p>
+                <p><b>UV Index:</b> ${current.uv}</p>
+                ${current.uv > 8 ? '<p><b>Precaution:</b> High UV exposure! Wear sunscreen.</p>' : ''}
+                ${forecast.forecastday.map(day => `
+                    <hr><p><b>Date:</b> ${day.date}</p>
+                    <p><b>Temp:</b> ${day.day.maxtemp_c}°C/${day.day.mintemp_c}°C</p>
+                    <p><b>Condition:</b> ${day.day.condition.text}</p>`).join('')}
+                <img src="${current.condition.icon}" alt="icon">
+            `;
+            document.getElementById('weather-info').innerHTML = weatherInfo;
+        };
+
+        const showError = err => {
+            document.getElementById('weather-info').innerHTML = `<p style="color:red;">${err}</p>`;
+        };
+
+        const updateFavorites = () => {
+            document.getElementById('favorites').innerHTML = `<h3>Favorites</h3>` + 
+                favorites.map(f => `<button onclick="setLocation('${f}')">${f}</button>`).join('');
+        };
+
+        const setLocation = loc => {
+            document.getElementById('location-input').value = loc;
+            document.getElementById('location-form').dispatchEvent(new Event('submit'));
+        };
     </script>
 </body>
 </html>
