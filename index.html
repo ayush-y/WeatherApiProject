@@ -12,20 +12,25 @@
             background-color: #333;
             color: #fff;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             text-align: center;
+            transition: background-color 0.3s ease;
         }
         h1, p, button, input { margin: 10px; }
         input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         button { padding: 10px 20px; background: #007bff; color: #fff; border: none; cursor: pointer; }
         button:hover { background: #0056b3; }
         .info { background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; }
+        .dark-mode { background-color: #f4f4f4; color: #333; }
+        .dark-mode button { background-color: #333; color: #fff; }
     </style>
 </head>
 <body>
     <h1>Weather App</h1>
+    <button id="theme-toggle">Toggle Dark Mode</button>
     <form id="location-form">
         <input type="text" id="location-input" placeholder="Enter location" required>
         <button type="submit">Get Weather</button>
@@ -36,14 +41,15 @@
 
     <script>
         const favorites = [], apiKey = '73ca9629cc944869b34170746252101';
-        
+
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+
         document.getElementById('location-form').addEventListener('submit', e => {
             e.preventDefault();
             const loc = document.getElementById('location-input').value;
-            fetch(`http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${loc}&days=3`)
-                .then(res => res.ok ? res.json() : Promise.reject('Location not found'))
-                .then(data => showWeather(data))
-                .catch(err => showError(err));
+            fetchWeather(loc);
         });
 
         document.getElementById('save-favorite').addEventListener('click', () => {
@@ -52,38 +58,57 @@
             updateFavorites();
         });
 
-        const showWeather = data => {
+        function fetchWeather(loc) {
+            fetch(`http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${loc}&days=3`)
+                .then(res => res.ok ? res.json() : Promise.reject('Location not found'))
+                .then(data => displayWeather(data))
+                .catch(err => showError(err));
+        }
+
+        function fetchUserLocation() {
+            fetch(`http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=auto:ip`)
+                .then(res => res.ok ? res.json() : Promise.reject('Could not fetch user location'))
+                .then(data => displayWeather(data))
+                .catch(err => showError(err));
+        }
+
+        function displayWeather(data) {
             const { location, current, forecast } = data;
             document.body.style.backgroundColor = current.condition.text.includes('rain') ? '#1e3c72' :
                                                   current.condition.text.includes('sunny') ? '#FFD700' :
                                                   current.condition.text.includes('snow') ? '#87CEEB' : '#708090';
+
+            const alerts = data.alerts?.alert || [];
+            const aqi = current.air_quality?.pm2_5 || "N/A";
             const weatherInfo = `
                 <p><b>Location:</b> ${location.name}, ${location.country}</p>
                 <p><b>Temperature:</b> ${current.temp_c}°C | <b>Condition:</b> ${current.condition.text}</p>
                 <p><b>UV Index:</b> ${current.uv}</p>
+                <p><b>Air Quality:</b> PM2.5: ${aqi}</p>
                 ${current.uv > 8 ? '<p><b>Precaution:</b> High UV exposure! Wear sunscreen.</p>' : ''}
+                ${aqi > 100 ? '<p><b>Suggestion:</b> Poor air quality! Wear masks outdoors.</p>' : '<p><b>Suggestion:</b> Air quality is healthy. Enjoy your day!</p>'}
+                ${alerts.map(alert => `<p style="color:red;"><b>Alert:</b> ${alert.event} - ${alert.desc}</p>`).join('')}
                 ${forecast.forecastday.map(day => `
                     <hr><p><b>Date:</b> ${day.date}</p>
-                    <p><b>Temp:</b> ${day.day.maxtemp_c}°C/${day.day.mintemp_c}°C</p>
-                    <p><b>Condition:</b> ${day.day.condition.text}</p>`).join('')}
+                    <p><b>Max Temp:</b> ${day.day.maxtemp_c}°C | <b>Min Temp:</b> ${day.day.mintemp_c}°C</p>
+                    <p><b>Condition:</b> ${day.day.condition.text}</p>
+                    ${day.hour.map(hour => `<p><b>${hour.time}:</b> ${hour.temp_c}°C - ${hour.condition.text}</p>`).join('')}
+                `).join('')}
                 <img src="${current.condition.icon}" alt="icon">
             `;
             document.getElementById('weather-info').innerHTML = weatherInfo;
-        };
+        }
 
-        const showError = err => {
+        function showError(err) {
             document.getElementById('weather-info').innerHTML = `<p style="color:red;">${err}</p>`;
-        };
+        }
 
-        const updateFavorites = () => {
+        function updateFavorites() {
             document.getElementById('favorites').innerHTML = `<h3>Favorites</h3>` + 
-                favorites.map(f => `<button onclick="setLocation('${f}')">${f}</button>`).join('');
-        };
+                favorites.map(f => `<button onclick="fetchWeather('${f}')">${f}</button>`).join('');
+        }
 
-        const setLocation = loc => {
-            document.getElementById('location-input').value = loc;
-            document.getElementById('location-form').dispatchEvent(new Event('submit'));
-        };
+        fetchUserLocation(); // Detect user location on page load
     </script>
 </body>
 </html>
