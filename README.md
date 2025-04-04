@@ -14,6 +14,7 @@ Welcome to the WeatherApiProject! This project is designed to fetch and display 
 ## Technologies Used
 
 - **Frontend**: HTML, CSS, JavaScript
+- Real time weather update
 
 - **API**:
 - Public Weather (WeatherAPI.com)
