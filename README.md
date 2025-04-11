@@ -10,6 +10,10 @@ Welcome to the WeatherApiProject! This project is designed to fetch and display 
 - Display current temperature, humidity, wind speed, and weather conditions
 - Search functionality to find weather information for specific locations
 - Responsive design for optimal viewing on various devices
+- Switch Temperature Unit: Toggle between Celsius and Fahrenheit.
+- Refresh Weather: Refresh current weather data instantly.
+- Dynamic Wind Safety Suggestions: Advises users during high wind scenarios.
+- Improved Dark Mode Toggle: Visual enhancements for better theme visibility.
 
 ## Technologies Used
 
