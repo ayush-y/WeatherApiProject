@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
+    <title>Enhanced Weather App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,21 +26,28 @@
         .info { background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; }
         .dark-mode { background-color: #f4f4f4; color: #333; }
         .dark-mode button { background-color: #333; color: #fff; }
+        #unit-toggle { background-color: #ffa500; }
+        #unit-toggle:hover { background-color: #ff7f00; }
+        #refresh { background-color: #28a745; }
+        #refresh:hover { background-color: #218838; }
     </style>
 </head>
 <body>
-    <h1>Weather App</h1>
+    <h1>Enhanced Weather App</h1>
     <button id="theme-toggle">Toggle Dark Mode</button>
     <form id="location-form">
         <input type="text" id="location-input" placeholder="Enter location" required>
         <button type="submit">Get Weather</button>
     </form>
+    <button id="refresh">Refresh Weather</button>
+    <button id="unit-toggle">Switch to Fahrenheit</button>
     <div id="weather-info" class="info"></div>
     <button id="save-favorite">Save to Favorites</button>
     <div id="favorites"></div>
 
     <script>
         const favorites = [], apiKey = '73ca9629cc944869b34170746252101';
+        let isCelsius = true;
 
         document.getElementById('theme-toggle').addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
@@ -50,6 +57,19 @@
             e.preventDefault();
             const loc = document.getElementById('location-input').value;
             fetchWeather(loc);
+        });
+
+        document.getElementById('refresh').addEventListener('click', () => {
+            const loc = document.getElementById('location-input').value;
+            if (loc) fetchWeather(loc);
+        });
+
+        document.getElementById('unit-toggle').addEventListener('click', () => {
+            isCelsius = !isCelsius;
+            const button = document.getElementById('unit-toggle');
+            button.textContent = isCelsius ? 'Switch to Fahrenheit' : 'Switch to Celsius';
+            const loc = document.getElementById('location-input').value;
+            if (loc) fetchWeather(loc);
         });
 
         document.getElementById('save-favorite').addEventListener('click', () => {
@@ -74,6 +94,10 @@
 
         function displayWeather(data) {
             const { location, current, forecast } = data;
+            const temp = isCelsius ? `${current.temp_c}°C` : `${current.temp_f}°F`;
+            const windSpeed = current.wind_kph;
+            const windAdvice = windSpeed > 50 ? '<p><b>Suggestion:</b> High winds detected! Secure loose items and avoid outdoor activities.</p>' : '';
+
             document.body.style.backgroundColor = current.condition.text.includes('rain') ? '#1e3c72' :
                                                   current.condition.text.includes('sunny') ? '#FFD700' :
                                                   current.condition.text.includes('snow') ? '#87CEEB' : '#708090';
@@ -82,7 +106,7 @@
             const aqi = current.air_quality?.pm2_5 || "N/A";
             const weatherInfo = `
                 <p><b>Location:</b> ${location.name}, ${location.country}</p>
-                <p><b>Temperature:</b> ${current.temp_c}°C | <b>Condition:</b> ${current.condition.text}</p>
+                <p><b>Temperature:</b> ${temp} | <b>Condition:</b> ${current.condition.text}</p>
                 <p><b>UV Index:</b> ${current.uv}</p>
                 <p><b>Air Quality:</b> PM2.5: ${aqi}</p>
                 ${current.uv > 8 ? '<p><b>Precaution:</b> High UV exposure! Wear sunscreen.</p>' : ''}
@@ -92,8 +116,8 @@
                     <hr><p><b>Date:</b> ${day.date}</p>
                     <p><b>Max Temp:</b> ${day.day.maxtemp_c}°C | <b>Min Temp:</b> ${day.day.mintemp_c}°C</p>
                     <p><b>Condition:</b> ${day.day.condition.text}</p>
-                    ${day.hour.map(hour => `<p><b>${hour.time}:</b> ${hour.temp_c}°C - ${hour.condition.text}</p>`).join('')}
                 `).join('')}
+                ${windAdvice}
                 <img src="${current.condition.icon}" alt="icon">
             `;
             document.getElementById('weather-info').innerHTML = weatherInfo;
@@ -108,7 +132,7 @@
                 favorites.map(f => `<button onclick="fetchWeather('${f}')">${f}</button>`).join('');
         }
 
-        fetchUserLocation(); // Detect user location on page load real time location
+        fetchUserLocation(); // Detect user location on page load
     </script>
 </body>
 </html>
