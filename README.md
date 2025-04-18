@@ -14,6 +14,7 @@ Welcome to the WeatherApiProject! This project is designed to fetch and display 
 - Refresh Weather: Refresh current weather data instantly.
 - Dynamic Wind Safety Suggestions: Advises users during high wind scenarios.
 - Improved Dark Mode Toggle: Visual enhancements for better theme visibility.
+- improved recommended news based upon user experience 
 
 ## Technologies Used
 
